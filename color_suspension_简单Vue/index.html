@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>index</title>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+    .css-btn {
+      width: 300px;
+      height: 30px;
+      border-radius: 100px;
+      position: relative;
+      overflow: hidden;
+      font-size: 16px;
+      line-height: 30px;
+      text-align: center;
+      color: #fff;
+      cursor: pointer;
+      background-color: #f72359;
+    }
+      .css-btn > span {
+        position: relative;
+        z-index: 999;
+      }
+      .css-btn:hover::before {
+          --size: 300px;
+      }
+      .css-btn::before {
+        --size: 0;
+        content: '';
+        width: var(--size);
+        height: var(--size);
+        position: absolute;
+        left: var(--x);
+        top: var(--y);
+        background-image: radial-gradient(circle closest-side, #4405f7, transparent);
+        transform: translate(-50%, -50%);
+        transition: width .2s ease, height .2s ease;
+      }
+  </style>
+  <script src="./vue-2.5.16.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div
+      class="js-btn css-btn"
+      @mousemove="mouseStartMove($event)"
+    >
+      滑动我看看颜色 index
+      <!-- <span>滑动我看看颜色 index</span> -->
+    </div>
+  </div>
+</body>
+</html>
+<script src="./index.js"></script>

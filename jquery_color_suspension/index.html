@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>index</title>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+    .css-btn {
+      width: 300px;
+      height: 30px;
+      border-radius: 100px;
+      position: relative;
+      z-index: 1;/* 设置为1,让文字上来一层 */
+      overflow: hidden;
+      font-size: 16px;
+      line-height: 30px;
+      text-align: center;
+      color: #fff;
+      cursor: pointer;
+      background-color: #f72359;
+    }
+      .css-btn > span {
+        position: relative;
+        z-index: 999;
+      }
+      .css-btn:hover::before {
+          --size: 300px;
+      }
+      .css-btn::before {
+        --size: 0;
+        content: '';
+        width: var(--size);
+        height: var(--size);
+        position: absolute;
+        left: var(--x);
+        top: var(--y);
+        z-index: -1;/* 设置为-1,让颜色掉下去一层,写span标签套文字,治标不治本 */
+        background-image: radial-gradient(circle closest-side, #4405f7, transparent);
+        transform: translate(-50%, -50%);
+        transition: width .2s ease, height .2s ease;
+      }
+  </style>
+</head>
+<body>
+  <div class="js-btn css-btn">
+    滑动我看看颜色 index
+  </div>
+</body>
+</html>
+<script src="./jquery-v3.3.1.js"></script>
+<script>
+  $(function () {
+    const $btn = $(".js-btn")
+    // 性能未优化的方案 (58 行 - 64 行)
+    /*$btn.mousemove(function (e) {
+      e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
+      let x = e.pageX - e.target.offsetLeft
+      let y = e.pageY - e.target.offsetTop
+      e.target.style.setProperty('--x', `${ x }px`)
+      e.target.style.setProperty('--y', `${ y }px`)
+    });*/
+    // 性能优化 的方案___见如下代码
+    $btn.on("mousemove", function (e) {
+      beforeThrottle(e)
+    })
+    /*
+      以下是 节流函数 throttleFn() 的参数
+      @ throttleFnFirstParameter 函数(设置 鼠标移动事件)
+      @ delay 事件 延时执行的 的 时间间隔
+      @ mustRunDelay 事件 必须执行的 时间间隔
+    */
+    var throttleFn = function(throttleFnFirstParameter, delay, mustRunDelay){
+      var timeDelayFn = null
+      var startDelayTime = null
+      return function () {
+        var _this = this,
+          args = arguments, // 函数的 arguments, 和 函数 throttleFnFirstParameter 的 arguments 是 一样的
+          timeNow = +new Date(); // 从 1970年1月1日0点0分0秒到当前时间的毫秒数
+        clearTimeout(timeDelayFn);
+        // 若该函数是第一次调用, 则直接设置 startDelayTime,即开始时间, 为 现在的时间, 即此刻的时间
+        !startDelayTime ? startDelayTime = timeNow : ''
+        // 当前时间与上一次函数被执行的时间作差, 与 mustApplyTime 比较, 若大于, 则必须执行一次函数, 若小于, 则重新设置计时器
+        var timeDifference = timeNow - startDelayTime
+        timeDifference >= mustRunDelay ? handleResetStartDelayTimeFn(_this, throttleFnFirstParameter, args, timeNow) : handleSetTimeDelayFn(_this, throttleFnFirstParameter, delay, args)
+      }
+    }
+    // 鼠标移动事件
+    var handleMouseMoveEvent = function (e) {
+      var x = e.pageX - e.target.offsetLeft
+      var y = e.pageY - e.target.offsetTop
+      e.target.style.setProperty('--x', `${ x }px`)
+      e.target.style.setProperty('--y', `${ y }px`)
+    }
+    function throttleFnFirstParameter () {
+      var e = arguments[0];
+      handleMouseMoveEvent(e);
+    }
+
+    var beforeThrottle = throttleFn(throttleFnFirstParameter, 50, 50)
+
+    function handleResetStartDelayTimeFn (_this, throttleFnFirstParameter, args, timeNow) {
+      throttleFnFirstParameter.apply(_this, args)
+      startDelayTime = timeNow
+    }
+    function handleSetTimeDelayFn (_this, throttleFnFirstParameter, delay, args) {
+      timeDelayFn = setTimeout(() =>{
+        throttleFnFirstParameter.apply(_this, args)
+      }, delay)
+    }
+  })
+</script>
